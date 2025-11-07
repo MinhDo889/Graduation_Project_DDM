@@ -3,51 +3,37 @@ import axios from "axios";
 
 const API = "http://localhost:3001/api";
 
-export default function ProductForm() {
+export default function ProductForm({ onAdded }) {
   const [form, setForm] = useState({
     name: "",
     description: "",
     price: "",
-    categoryIds: [],
   });
-  const [categories, setCategories] = useState([]);
 
-  const fetchCategories = async () => {
-    const res = await axios.get(`${API}/categories`);
-    setCategories(res.data);
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // Lấy token từ localStorage sau khi login
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = user?.token;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API}/products`, form);
+      await axios.post(`${API}/products`, form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("✅ Thêm sản phẩm thành công!");
-      setForm({ name: "", description: "", price: "", categoryIds: [] });
+      setForm({ name: "", description: "", price: "" });
+      onAdded(); // refresh danh sách
     } catch (err) {
       console.error(err);
-      alert("❌ Lỗi khi thêm sản phẩm");
+      alert("❌ " + (err.response?.data?.message || "Lỗi khi thêm sản phẩm"));
     }
   };
 
-  const handleCategoryChange = (id) => {
-    setForm((prev) => {
-      const isSelected = prev.categoryIds.includes(id);
-      return {
-        ...prev,
-        categoryIds: isSelected
-          ? prev.categoryIds.filter((cid) => cid !== id)
-          : [...prev.categoryIds, id],
-      };
-    });
-  };
-
   return (
-    <div>
-      <h2>➕ Thêm sản phẩm</h2>
+    <div style={{ border: "1px solid #ccc", padding: 15, borderRadius: 8, marginBottom: 20 }}>
+      <h3>➕ Thêm sản phẩm</h3>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -71,22 +57,7 @@ export default function ProductForm() {
           required
         />
         <br />
-        <label>Danh mục:</label>
-        <div>
-          {categories.map((cat) => (
-            <label key={cat.id} style={{ display: "block" }}>
-              <input
-                type="checkbox"
-                checked={form.categoryIds.includes(cat.id)}
-                onChange={() => handleCategoryChange(cat.id)}
-              />{" "}
-              {cat.name}
-            </label>
-          ))}
-        </div>
-        <button type="submit" style={{ marginTop: "10px" }}>
-          Lưu sản phẩm
-        </button>
+        <button type="submit" style={{ marginTop: "10px" }}>Lưu sản phẩm</button>
       </form>
     </div>
   );
