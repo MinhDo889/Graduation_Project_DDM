@@ -21,15 +21,25 @@ export const getAllProducts = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, categoryIds } = req.body;
+    let image_url = null;
 
-    const product = await Product.create({ name, description, price });
+    // Nếu có ảnh thì lấy đường dẫn lưu
+    if (req.file) {
+      image_url = `/uploads/products/${req.file.filename}`;
+    }
 
-    // Gán nhiều danh mục cho sản phẩm
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      image_url,
+    });
+
     if (categoryIds && categoryIds.length > 0) {
       await product.setCategories(categoryIds);
     }
 
-    res.status(201).json(product);
+    res.status(201).json({ message: "Tạo sản phẩm thành công", product });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

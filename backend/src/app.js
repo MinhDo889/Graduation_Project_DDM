@@ -7,7 +7,7 @@ import path from "path";
 // ----------------- IMPORT MODELS -----------------
 import "./models/product_models.js";
 import "./models/category_models.js";
-import "./models/product_category_models.js"; // quan trọng: import model trung gian trước khi sync
+import "./models/product_category_models.js"; 
 import { sequelize } from "./config/db.js";
 
 // ----------------- IMPORT ROUTES -----------------
@@ -15,6 +15,7 @@ import productRoutes from "./routes/product_routes.js";
 import categoryRoutes from "./routes/category_routes.js";
 import authRoutes from "./routes/auth_routes.js";
 import profileRoutes from "./routes/profile_routes.js";
+
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -50,5 +51,6 @@ sequelize
   .catch((err) => {
     console.error("❌ Failed to sync database:", err);
   });
+  
 
   export default app;

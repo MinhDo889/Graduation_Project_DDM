@@ -13,11 +13,21 @@ export const verifyToken = (req, res, next) => {
       return res.status(401).json({ message: "Token không hợp lệ" });
     }
 
-    // Giải mã token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+    // 1️⃣ Verify token: kiểm tra hợp lệ và hết hạn
+    const verified = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
 
-    // Gắn thông tin user (id, role, email,...) vào request để dùng cho route sau
-    req.user = decoded;
+    // 2️⃣ Lưu payload đã verify vào req.user
+    // Đảm bảo payload có email khi tạo token
+    req.user = {
+      id: verified.id,
+      name: verified.name,
+      email: verified.email, // email có trong payload
+      role: verified.role,
+    };
+
+    // 3️⃣ Log payload để kiểm tra
+    console.log("User from token:", req.user);
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "Token không hợp lệ hoặc hết hạn" });

@@ -6,18 +6,41 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/product_controller.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
-import { authorizeRoles } from "../middleware/authMiddleware.js";
+import { verifyToken, authorizeRoles } from "../middleware/authMiddleware.js";
+import { uploadProductImage } from "../middleware/upload_product.js"; // 🆕 thêm middleware upload ảnh
 
 const router = express.Router();
 
-// Ai cũng xem được
+// =====================
+// 🛍️ ROUTES SẢN PHẨM
+// =====================
+
+// Ai cũng xem được danh sách và chi tiết sản phẩm
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
-// Chỉ admin và super_admin mới được thêm/sửa/xóa
-router.post("/", verifyToken, authorizeRoles("admin", "super_admin"), createProduct);
-router.put("/:id", verifyToken, authorizeRoles("admin", "super_admin"), updateProduct);
-router.delete("/:id", verifyToken, authorizeRoles("super_admin"), deleteProduct);
+// Chỉ admin hoặc super_admin được thêm / sửa / xóa sản phẩm
+router.post(
+  "/",
+  verifyToken,
+  authorizeRoles("admin", "super_admin"),
+  uploadProductImage.single("image"), // 🆕 upload ảnh 1 file
+  createProduct
+);
+
+router.put(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin", "super_admin"),
+  uploadProductImage.single("image"), // 🆕 cho phép update ảnh mới
+  updateProduct
+);
+
+router.delete(
+  "/:id",
+  verifyToken,
+  authorizeRoles("super_admin"),
+  deleteProduct
+);
 
 export default router;
