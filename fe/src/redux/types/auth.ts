@@ -45,3 +45,17 @@ export interface Product {
   created_at?: Date;
   categories?: Category[];
 }
+
+export interface CartItem {
+  id: string;
+  cart_id: string;
+  product_id: string;
+  quantity: number;
+  product?: Product; // <-- chú ý chữ P hoa
+}
+
+export interface Cart {
+  id: string;
+  user_id: string;
+  CartItems: CartItem[];
+}

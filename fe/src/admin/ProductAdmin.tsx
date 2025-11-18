@@ -186,7 +186,7 @@ const ProductAdmin: React.FC = () => {
                 <br />
                 {p.image_url && (
                   <img
-                    src={`http://localhost:3001${p.image_url}`}
+                    src={`http://localhost:3001/${p.image_url}`}
                     alt={p.name}
                     width={60}
                   />

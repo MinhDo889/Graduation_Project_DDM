@@ -39,7 +39,7 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { phone, address, city, country } = req.body;
+    const { phone_number, address, city, country } = req.body;
     const avatar_url = req.file ? `/uploads/avatars/${req.file.filename}` : undefined;
 
     const profile = await Profile.findOne({ where: { user_id } });

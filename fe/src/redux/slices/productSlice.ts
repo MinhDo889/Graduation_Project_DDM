@@ -22,7 +22,7 @@ const initialState: ProductState = {
 };
 
 // ========================
-// Fetch Products (có thể filter theo category)
+// Fetch ALL Products
 // ========================
 export const fetchProducts = createAsyncThunk<Product[], string | undefined>(
   "products/fetchProducts",
@@ -34,6 +34,21 @@ export const fetchProducts = createAsyncThunk<Product[], string | undefined>(
       }
       const res = await api.get(url);
       return res.data as Product[];
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// ========================
+// Fetch Product BY ID
+// ========================
+export const fetchProductById = createAsyncThunk<Product, string>(
+  "products/fetchProductById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/products/${id}`);
+      return res.data as Product;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -134,6 +149,25 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+      // fetchProductById
+      .addCase(fetchProductById.pending, (state) => {
+        state.loading = true;
+        state.error = undefined;
+        state.productDetail = undefined;
+      })
+      .addCase(
+        fetchProductById.fulfilled,
+        (state, action: PayloadAction<Product>) => {
+          state.loading = false;
+          state.productDetail = action.payload;
+        }
+      )
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       // createProduct
       .addCase(createProduct.pending, (state) => {
         state.loading = true;
@@ -150,6 +184,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       // updateProduct
       .addCase(updateProduct.pending, (state) => {
         state.loading = true;
@@ -170,6 +205,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
       // deleteProduct
       .addCase(deleteProduct.pending, (state) => {
         state.loading = true;

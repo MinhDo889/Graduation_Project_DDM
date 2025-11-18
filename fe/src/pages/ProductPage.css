@@ -1,0 +1,104 @@
+/* Container tổng */
+.product_page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tiêu đề trang */
+.product_page-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Loading và Error */
+.product_page-loading,
+.product_page-error,
+.product_page-empty {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Danh sách sản phẩm */
+.product_page-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Card sản phẩm */
+.product_page-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Hover effect cho card */
+.product_page-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Hình ảnh sản phẩm */
+.product_page-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+/* Fallback khi không có hình */
+.product_page-image-fallback {
+  width: 100%;
+  height: 200px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+/* Tên sản phẩm */
+.product_page-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+/* Giá sản phẩm */
+.product_page-price {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f57c00;
+  margin-bottom: 10px;
+}
+
+/* Mô tả sản phẩm */
+.product_page-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Responsive nhỏ hơn 600px */
+@media (max-width: 600px) {
+  .product_page-list {
+    grid-template-columns: 1fr;
+  }
+}

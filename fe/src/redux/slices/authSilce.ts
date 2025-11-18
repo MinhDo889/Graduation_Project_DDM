@@ -22,7 +22,7 @@ interface RegisterPayload {
 }
 
 interface DecodedToken {
-  id: string; // 🔹 thêm id
+  id: string;
   email: string;
   name?: string;
   role: "user" | "admin" | "super_admin";
@@ -41,10 +41,8 @@ export const loginUser = createAsyncThunk<
     const res = await api.post("/auth/login", { email, password });
     const { token } = res.data;
 
-    // ✅ Decode token
     const decodedToken = jwtDecode<DecodedToken>(token);
 
-    // ✅ Lưu vào localStorage
     localStorage.setItem("token", token);
     localStorage.setItem("email", decodedToken.email);
     localStorage.setItem("name", decodedToken.name || "");
@@ -83,7 +81,6 @@ export const registerUser = createAsyncThunk<
 
       const decodedToken = jwtDecode<DecodedToken>(token);
 
-      // ✅ Lưu vào localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("email", decodedToken.email);
       localStorage.setItem("name", decodedToken.name || "");
@@ -121,11 +118,31 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
 });
 
 // =========================
+// INIT STATE FROM LOCALSTORAGE
+// =========================
+const getUserFromStorage = (): User | null => {
+  const token = localStorage.getItem("token");
+  const email = localStorage.getItem("email");
+  const name = localStorage.getItem("name");
+  const role = localStorage.getItem("role") as
+    | "user"
+    | "admin"
+    | "super_admin"
+    | null;
+  const id = localStorage.getItem("id");
+
+  if (token && email && id && role) {
+    return { token, email, name: name || "", role, id };
+  }
+  return null;
+};
+
+// =========================
 // INITIAL STATE
 // =========================
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
+  user: getUserFromStorage(),
+  isAuthenticated: !!getUserFromStorage(),
   loading: false,
   error: null,
 };

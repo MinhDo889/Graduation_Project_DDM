@@ -1,12 +1,16 @@
 // src/pages/CategoriesPage.tsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type { RootState, AppDispatch } from "../redux/store";
 import { fetchCategories } from "../redux/slices/categoriesSilce";
 import type { Category } from "../redux/types/auth";
+import "./CategoriesPage.css";
 
 const CategoriesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
   const { categories, loading, error } = useSelector(
     (state: RootState) => state.categories
   );
@@ -15,32 +19,37 @@ const CategoriesPage: React.FC = () => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  return (
-    <>
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md">
-        <h1 className="text-2xl font-bold text-pink-600 mb-4">
-          Danh sách danh mục
-        </h1>
+  // --- Chuyển route mà không reload ---
+  const handleCategoryClick = (id: string) => {
+    navigate(`/categories/${id}`);
+  };
 
-        {loading && <p className="text-gray-500">Đang tải...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+  return (
+    <div className="categories-page">
+      <div className="categories-container">
+        {loading && <p className="categories-loading">Đang tải...</p>}
+        {error && <p className="categories-error">{error}</p>}
 
         {categories.length > 0 ? (
-          <ul className="list-disc list-inside space-y-2">
+          <div className="categories-list">
             {categories.map((cat: Category) => (
-              <li
-                key={cat.id}
-                className="p-2 border rounded hover:bg-pink-50 transition"
-              >
-                <strong>{cat.name}</strong>: {cat.description || "-"}
-              </li>
+              <div key={cat.id} className="category-wrapper">
+                <button
+                  type="button"
+                  onClick={() => handleCategoryClick(cat.id)}
+                  className="category-item"
+                >
+                  {cat.name}
+                </button>
+                <span className="category-tooltip">{cat.description}</span>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
-          !loading && <p className="text-gray-500">Chưa có danh mục nào</p>
+          !loading && <p className="categories-empty">Chưa có danh mục nào</p>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

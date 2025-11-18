@@ -1,15 +1,16 @@
-// src/pages/auth/Login.tsx
 import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSilce";
 import type { RootState, AppDispatch } from "../../redux/store";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import Header from "../../common/Header";
+import "./Login.css";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -17,14 +18,12 @@ const Login: React.FC = () => {
     (state: RootState) => state.auth
   );
 
-  // Hàm chuyển hướng theo role
   const redirectByRole = (role: string | null) => {
-    if (!role) return; // Nếu null thì không làm gì
+    if (!role) return;
     if (role === "admin" || role === "super_admin") navigate("/product_admin");
     else navigate("/");
   };
 
-  // Ngăn truy cập lại trang login khi đã login
   useEffect(() => {
     if (user?.token) {
       redirectByRole(user.role);
@@ -33,61 +32,80 @@ const Login: React.FC = () => {
 
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    if (token && role) {
-      redirectByRole(role);
-    }
+    if (token && role) redirectByRole(role);
   }, [user, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-      const result = await dispatch(loginUser({ email, password }));
-      if (loginUser.fulfilled.match(result)) {
-        const role = result.payload.role;
-        // Lưu token & role vào localStorage
-        localStorage.setItem("role", role);
-        redirectByRole(role);
-      }
-    } catch (err) {
-      console.error("Đăng nhập thất bại:", err);
+    const result = await dispatch(loginUser({ email, password }));
+    if (loginUser.fulfilled.match(result)) {
+      localStorage.setItem("role", result.payload.role);
+      redirectByRole(result.payload.role);
     }
   };
 
   return (
     <>
       <Header />
-      <div className="login-background">
-        <div className="login-card">
-          <h1>F$ Limousine</h1>
-          {error && <div className="alert error">{error}</div>}
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="form-group">
+      <div className="login-background-login">
+        <div className="login-card-login">
+          <h1 className="brand-title-login">D$&Care</h1>
+
+          {error && <div className="alert-error-login">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="login-form-login">
+            <div className="form-group-login">
               <label>Email</label>
-              <div className="input-icon">
+              <div className="input-icon-login">
                 <FaEnvelope />
                 <input
                   type="email"
+                  placeholder="Nhập email..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
             </div>
-            <div className="form-group">
+
+            <div className="form-group-login">
               <label>Mật khẩu</label>
-              <div className="input-icon">
+              <div className="input-icon-login">
                 <FaLock />
                 <input
-                  type="password"
+                  type={showPass ? "text" : "password"}
+                  placeholder="Nhập mật khẩu..."
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <span
+                  className="toggle-pass-login"
+                  onClick={() => setShowPass(!showPass)}
+                >
+                  {showPass ? <FaEyeSlash /> : <FaEye />}
+                </span>
               </div>
+              <span
+                className="forgot-password-login"
+                onClick={() => navigate("/forgot")}
+              >
+                Quên mật khẩu?
+              </span>
             </div>
-            <button type="submit" disabled={loading}>
+
+            <button
+              type="submit"
+              className="btn-login-login"
+              disabled={loading}
+            >
               {loading ? "Đang đăng nhập..." : "Đăng Nhập"}
             </button>
+
+            <div className="register-text-login">
+              Chưa có tài khoản?{" "}
+              <span onClick={() => navigate("/register")}>Đăng ký ngay</span>
+            </div>
           </form>
         </div>
       </div>
