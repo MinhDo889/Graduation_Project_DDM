@@ -91,8 +91,8 @@ const ProfilePage: React.FC = () => {
                   avatarFile
                     ? URL.createObjectURL(avatarFile)
                     : profile.avatar_url
-                    ? `${BASE_URL}${profile.avatar_url}`
-                    : "/default-avatar.png"
+                      ? `${BASE_URL}${profile.avatar_url}`
+                      : "/default-avatar.png"
                 }
                 alt="avatar"
               />

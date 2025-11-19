@@ -99,7 +99,9 @@ export const registerUser = createAsyncThunk<
         skin_type: decodedToken.skin_type,
       };
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Đăng ký thất bại");
+      return rejectWithValue(
+        err.response?.data?.message || "Đăng ký thành công"
+      );
     }
   }
 );

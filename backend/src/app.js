@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 sequelize
-  .sync({ alter: true }) // trong dev có thể dùng force: true
+  .sync({  }) // trong dev có thể dùng force: true
   .then(() => {
     console.log("✅ Database synced successfully");
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

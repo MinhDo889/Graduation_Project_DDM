@@ -39,7 +39,8 @@ export const fetchProfile = createAsyncThunk<Profile, string>(
       const res = await api.get(`/api/profiles/${user_id}`);
       return res.data as Profile;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+      return rejectWithValue(err.response?.data?.message || err.message());
+      console.log(err, "lỗi con cặc");
     }
   }
 );
