@@ -3,16 +3,26 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import { jwtDecode } from "jwt-decode";
 import api from "../../services/api";
-import type { AuthState, User } from "../types/auth";
 
 // =========================
-// TYPES
+// INTERFACES
 // =========================
-interface LoginPayload {
+interface User {
+  id: string;
+  name: string;
   email: string;
-  password: string;
+  role: string;
+  token?: string;
+  verification_code?: string; // optional, chỉ dùng khi register
+}
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+  emailToVerify: string | null; // lưu tạm email khi register chưa verify
 }
 
 interface RegisterPayload {
@@ -21,16 +31,84 @@ interface RegisterPayload {
   password: string;
 }
 
-interface DecodedToken {
-  id: string;
+interface LoginPayload {
   email: string;
-  name?: string;
-  role: "user" | "admin" | "super_admin";
-  skin_type?: string;
+  password: string;
+}
+
+interface VerifyPayload {
+  email: string;
+  code: string;
 }
 
 // =========================
-// LOGIN ✅
+// HELPER: load user từ localStorage
+// =========================
+const loadUserFromStorage = (): User | null => {
+  const token = localStorage.getItem("token");
+  const id = localStorage.getItem("id");
+  const name = localStorage.getItem("name");
+  const email = localStorage.getItem("email");
+  const role = localStorage.getItem("role");
+
+  if (token && id && email) {
+    return { id, name: name || "", email, role: role || "", token };
+  }
+  return null;
+};
+
+// =========================
+// REGISTER
+// =========================
+export const registerUser = createAsyncThunk<
+  { email: string; verification_code: string },
+  RegisterPayload,
+  { rejectValue: string }
+>(
+  "auth/registerUser",
+  async ({ name, email, password }, { rejectWithValue }) => {
+    try {
+      const res = await api.post("api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      return {
+        email: res.data.email,
+        verification_code: res.data.verification_code,
+      };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Đăng ký thất bại");
+    }
+  }
+);
+
+// =========================
+// VERIFY USER
+// =========================
+export const verifyUser = createAsyncThunk<
+  User,
+  VerifyPayload,
+  { rejectValue: string }
+>("auth/verifyUser", async ({ email, code }, { rejectWithValue }) => {
+  try {
+    const res = await api.post("api/auth/verify", { email, code });
+    const { token, id, name, role } = res.data;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("email", email);
+    localStorage.setItem("name", name || "");
+    localStorage.setItem("role", role);
+    localStorage.setItem("id", id);
+
+    return { token, email, name, role, id };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || "Xác thực thất bại");
+  }
+});
+
+// =========================
+// LOGIN
 // =========================
 export const loginUser = createAsyncThunk<
   User,
@@ -38,73 +116,27 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/loginUser", async ({ email, password }, { rejectWithValue }) => {
   try {
-    const res = await api.post("/auth/login", { email, password });
-    const { token } = res.data;
+    const res = await api.post("api/auth/login", { email, password });
 
-    const decodedToken = jwtDecode<DecodedToken>(token);
-
-    localStorage.setItem("token", token);
-    localStorage.setItem("email", decodedToken.email);
-    localStorage.setItem("name", decodedToken.name || "");
-    localStorage.setItem("role", decodedToken.role);
-    localStorage.setItem("id", decodedToken.id);
-    if (decodedToken.skin_type) {
-      localStorage.setItem("skin_type", decodedToken.skin_type);
+    if (res.status === 403) {
+      return rejectWithValue(
+        res.data.message || "Tài khoản chưa xác thực email!"
+      );
     }
 
-    return {
-      id: decodedToken.id,
-      token,
-      email: decodedToken.email,
-      name: decodedToken.name,
-      role: decodedToken.role,
-      skin_type: decodedToken.skin_type,
-    };
+    const { token, id, name, role } = res.data;
+
+    localStorage.setItem("token", token);
+    localStorage.setItem("email", email);
+    localStorage.setItem("name", name || "");
+    localStorage.setItem("role", role);
+    localStorage.setItem("id", id);
+
+    return { token, email, name, role, id };
   } catch (err: any) {
     return rejectWithValue(err.response?.data?.message || "Đăng nhập thất bại");
   }
 });
-
-// =========================
-// REGISTER ✅
-// =========================
-export const registerUser = createAsyncThunk<
-  User,
-  RegisterPayload,
-  { rejectValue: string }
->(
-  "auth/registerUser",
-  async ({ name, email, password }, { rejectWithValue }) => {
-    try {
-      const res = await api.post("/auth/register", { name, email, password });
-      const { token } = res.data;
-
-      const decodedToken = jwtDecode<DecodedToken>(token);
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("email", decodedToken.email);
-      localStorage.setItem("name", decodedToken.name || "");
-      localStorage.setItem("role", decodedToken.role);
-      localStorage.setItem("id", decodedToken.id);
-      if (decodedToken.skin_type) {
-        localStorage.setItem("skin_type", decodedToken.skin_type);
-      }
-
-      return {
-        id: decodedToken.id,
-        token,
-        email: decodedToken.email,
-        name: decodedToken.name,
-        role: decodedToken.role,
-        skin_type: decodedToken.skin_type,
-      };
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message || "Đăng ký thành công"
-      );
-    }
-  }
-);
 
 // =========================
 // LOGOUT
@@ -115,38 +147,19 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
   localStorage.removeItem("name");
   localStorage.removeItem("role");
   localStorage.removeItem("id");
-  localStorage.removeItem("skin_type");
   return {};
 });
 
 // =========================
-// INIT STATE FROM LOCALSTORAGE
-// =========================
-const getUserFromStorage = (): User | null => {
-  const token = localStorage.getItem("token");
-  const email = localStorage.getItem("email");
-  const name = localStorage.getItem("name");
-  const role = localStorage.getItem("role") as
-    | "user"
-    | "admin"
-    | "super_admin"
-    | null;
-  const id = localStorage.getItem("id");
-
-  if (token && email && id && role) {
-    return { token, email, name: name || "", role, id };
-  }
-  return null;
-};
-
-// =========================
 // INITIAL STATE
 // =========================
+const initialUser = loadUserFromStorage();
 const initialState: AuthState = {
-  user: getUserFromStorage(),
-  isAuthenticated: !!getUserFromStorage(),
+  user: initialUser,
+  isAuthenticated: !!initialUser,
   loading: false,
   error: null,
+  emailToVerify: null,
 };
 
 // =========================
@@ -157,43 +170,64 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      // LOGIN
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
+    // REGISTER
+    builder.addCase(registerUser.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(registerUser.fulfilled, (state, action) => {
+      state.loading = false;
+      state.emailToVerify = action.payload.email;
+    });
+    builder.addCase(registerUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload ?? "Đăng ký thất bại";
+    });
+
+    // VERIFY
+    builder.addCase(verifyUser.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      verifyUser.fulfilled,
+      (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload ?? "Đăng nhập thất bại";
-      })
+        state.emailToVerify = null;
+      }
+    );
+    builder.addCase(verifyUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload ?? "Xác thực thất bại";
+    });
 
-      // REGISTER
-      .addCase(registerUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
+    // LOGIN
+    builder.addCase(loginUser.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(
+      loginUser.fulfilled,
+      (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload ?? "Đăng ký thất bại";
-      })
+      }
+    );
+    builder.addCase(loginUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload ?? "Đăng nhập thất bại";
+    });
 
-      // LOGOUT
-      .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null;
-        state.isAuthenticated = false;
-        state.error = null;
-      });
+    // LOGOUT
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.error = null;
+      state.emailToVerify = null;
+    });
   },
 });
 

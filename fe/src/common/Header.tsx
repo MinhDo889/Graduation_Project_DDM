@@ -21,7 +21,6 @@ const Header: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch profile khi login
   useEffect(() => {
     if (isAuthenticated && user?.id) {
       dispatch(fetchProfile(user.id));
@@ -88,6 +87,7 @@ const Header: React.FC = () => {
               </button>
             </div>
           ) : (
+            // Khi chưa login → show Log In / Register
             <div className="auth">
               <Link to="/login" className="login-btn">
                 <FaUser /> Log In

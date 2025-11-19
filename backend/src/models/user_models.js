@@ -17,6 +17,7 @@ User.init(
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
+      unique: true,
       validate: { isEmail: true },
     },
     password: {
@@ -30,6 +31,18 @@ User.init(
     skin_type: {
       type: DataTypes.ENUM("da_dau", "da_kho", "hon_hop", "nhay_cam", "tat_ca"),
       defaultValue: "tat_ca",
+    },
+    verification_code: {
+      type: DataTypes.STRING(6),
+      allowNull: true,
+    },
+    is_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    verified_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,

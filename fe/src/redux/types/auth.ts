@@ -1,12 +1,6 @@
-export interface User {
-  id: string; // CHAR(36)
-  email: string;
-  name?: string;
-  role: "user" | "admin" | "super_admin";
-  token?: string; // token có thể không có khi lấy data từ DB
-  profile?: Profile; // quan hệ 1-1 với profile
-}
-
+// =========================
+// USER & PROFILE
+// =========================
 export interface Profile {
   id: string;
   user_id: string;
@@ -18,13 +12,32 @@ export interface Profile {
   created_at?: Date;
 }
 
+export interface User {
+  id: string; // CHAR(36)
+  name: string;
+  email: string;
+  role: "user" | "admin" | "super_admin";
+  token?: string; // token JWT sau login hoặc verify
+  profile?: Profile; // quan hệ 1-1 với profile
+  skin_type?: "da_dau" | "da_kho" | "hon_hop" | "nhay_cam" | "tat_ca";
+  is_verified?: boolean; // trạng thái xác thực email
+  verification_code: string;
+}
+
+// =========================
+// AUTH STATE
+// =========================
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  emailToVerify?: string | null; // lưu tạm email khi register chưa verify
 }
 
+// =========================
+// CATEGORY & PRODUCT
+// =========================
 export interface Category {
   id: string;
   name: string;
@@ -46,6 +59,9 @@ export interface Product {
   categories?: Category[];
 }
 
+// =========================
+// CART & CART ITEM
+// =========================
 export interface CartItem {
   id: string;
   cart_id: string;

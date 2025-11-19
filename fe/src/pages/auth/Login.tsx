@@ -18,12 +18,14 @@ const Login: React.FC = () => {
     (state: RootState) => state.auth
   );
 
+  // -------------------- REDIRECT BY ROLE --------------------
   const redirectByRole = (role: string | null) => {
     if (!role) return;
     if (role === "admin" || role === "super_admin") navigate("/product_admin");
     else navigate("/");
   };
 
+  // -------------------- AUTO REDIRECT --------------------
   useEffect(() => {
     if (user?.token) {
       redirectByRole(user.role);
@@ -35,12 +37,22 @@ const Login: React.FC = () => {
     if (token && role) redirectByRole(role);
   }, [user, navigate]);
 
+  // -------------------- HANDLE LOGIN --------------------
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const result = await dispatch(loginUser({ email, password }));
+
     if (loginUser.fulfilled.match(result)) {
+      // login thành công
       localStorage.setItem("role", result.payload.role);
       redirectByRole(result.payload.role);
+    } else if (
+      loginUser.rejected.match(result) &&
+      result.payload === "Tài khoản chưa xác thực email!"
+    ) {
+      alert(
+        "Tài khoản chưa xác thực email. Vui lòng kiểm tra email và xác thực."
+      );
     }
   };
 
