@@ -6,7 +6,7 @@ import { fetchProducts } from "../redux/slices/productSlice";
 import type { Product } from "../redux/types/auth";
 import "./ProductPage.css";
 
-const BASE_URL = "http://localhost:3001/";
+const BASE_URL = "http://localhost:3001";
 
 const ProductPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

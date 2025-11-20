@@ -21,21 +21,30 @@ const Login: React.FC = () => {
   // -------------------- REDIRECT BY ROLE --------------------
   const redirectByRole = (role: string | null) => {
     if (!role) return;
-    if (role === "admin" || role === "super_admin") navigate("/product_admin");
-    else navigate("/");
+
+    if (role === "admin" || role === "super_admin") {
+      navigate("/product_admin", { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
   };
 
   // -------------------- AUTO REDIRECT --------------------
   useEffect(() => {
-    if (user?.token) {
+    // Nếu user đã login trong Redux
+    if (user?.token && user.role) {
       redirectByRole(user.role);
       return;
     }
 
+    // Nếu chưa có user trong Redux -> kiểm tra localStorage
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    if (token && role) redirectByRole(role);
-  }, [user, navigate]);
+
+    if (token && role) {
+      redirectByRole(role);
+    }
+  }, [user]);
 
   // -------------------- HANDLE LOGIN --------------------
   const handleSubmit = async (e: FormEvent) => {

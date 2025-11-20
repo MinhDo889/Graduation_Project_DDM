@@ -9,7 +9,7 @@
 /* ===== HEADER ===== */
 header.hdt-header {
   width: 100%;
-  background: linear-gradient(-45deg, #ffe6ef, #ffffff, #ffd6e7, #fff7fa);
+  background: linear-gradient(-45deg, #f8e8ee, #ffffff, #faebf2, #fff7fa);
   background-size: 400% 400%;
   animation: gradientBg 9s ease infinite;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
@@ -35,7 +35,7 @@ header.hdt-header {
 .hdt-top {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex-wrap: nowrap;
 }
 

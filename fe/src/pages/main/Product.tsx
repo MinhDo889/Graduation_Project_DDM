@@ -7,7 +7,7 @@ import type { Product as ProductType } from "../../redux/types/auth";
 import "./Product.css";
 import Header from "../../common/Header";
 
-const BASE_URL = "http://localhost:3001/";
+const BASE_URL = "http://localhost:3001";
 
 const Product: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

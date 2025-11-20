@@ -12,7 +12,8 @@ const Home: React.FC = () => {
       <div
         className="home-banner"
         style={{
-          width: "100%",
+          width: "95%",
+          paddingLeft: "90px",
         }}
       >
         <img
@@ -21,9 +22,7 @@ const Home: React.FC = () => {
           className="home-banner-img"
           style={{
             width: "100%",
-            height: "400px",
-            objectFit: "cover",
-            borderRadius: "10px",
+            height: "450px",
           }}
         />
       </div>

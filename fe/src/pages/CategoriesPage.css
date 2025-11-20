@@ -1,32 +1,21 @@
 /* Container chính */
 .categories-page {
   width: 100%;
-  padding: 15px 0;
+  padding: 20px 0;
   font-family: "Poppins", sans-serif;
 }
 
-/* --- Danh mục ngang --- */
 .categories-list {
   display: flex;
-  flex-direction: row;
-  gap: 14px;
+  gap: 12px; /* khoảng cách giữa các item */
+  padding-left: 250px;
+  /* Ẩn scroll hoàn toàn */
   overflow-x: auto;
-  padding-bottom: 10px;
-  white-space: nowrap;
-  scrollbar-width: thin;
-  padding-left: 200px;
+  scrollbar-width: none; /* Firefox */
 }
 
-/* Thanh cuộn màu hồng nhẹ */
 .categories-list::-webkit-scrollbar {
-  height: 1px;
-}
-.categories-list::-webkit-scrollbar-thumb {
-  background: #ffc1d9;
-  border-radius: 4px;
-}
-.categories-list::-webkit-scrollbar-track {
-  background: #ffe4ec;
+  display: none; /* Chrome, Safari */
 }
 
 /* Bọc item */
@@ -35,43 +24,50 @@
   display: inline-block;
 }
 
-/* Nút danh mục – phong cách mỹ phẩm */
+/* Nút danh mục – tone hồng sang trọng */
 .category-item {
-  padding: 10px 20px;
+  padding: 10px 22px;
   font-size: 15px;
-  background: #ffe6f1; /* Hồng nhạt */
-  border-radius: 25px; /* Tròn mềm mại */
-  border: 1px solid #ffd1e6; /* Border hồng nhẹ */
+  background: #fff2f8;
+  border-radius: 30px;
+  border: 1px solid #ffd3e6;
   cursor: pointer;
   white-space: nowrap;
-  color: #d63384;
+  color: #c12771;
   font-weight: 500;
+
   transition: all 0.25s ease;
-  box-shadow: 0 3px 6px rgba(255, 182, 210, 0.2);
+  box-shadow: 0 4px 8px rgba(255, 182, 210, 0.18);
 }
 
+/* Hover – hồng gradient nhẹ */
 .category-item:hover {
-  background: #ffcee4; /* Hover hồng đậm hơn */
-  transform: translateY(-3px);
-  box-shadow: 0 8px 12px rgba(255, 182, 210, 0.3);
+  background: linear-gradient(145deg, #ffd6e9, #ffe6f3);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 16px rgba(255, 182, 210, 0.35);
 }
 
-/* Tooltip mô tả */
+/* Tooltip mô tả (hiện ra ngay lập tức) */
 .category-tooltip {
-  display: none;
   position: absolute;
-  bottom: -35px;
+  bottom: -38px;
   left: 50%;
   transform: translateX(-50%);
-  background: #d63384; /* Hồng đậm */
+  padding: 7px 14px;
+
+  background: #c12771;
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
   font-size: 13px;
+  border-radius: 6px;
   white-space: nowrap;
-  box-shadow: 0 4px 8px rgba(214, 51, 132, 0.25);
+  box-shadow: 0 5px 12px rgba(193, 39, 113, 0.25);
+
+  /* Luôn sẵn nhưng ẩn bằng opacity, không dùng display để không bị delay */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in;
 }
 
 .category-wrapper:hover .category-tooltip {
-  display: block;
+  opacity: 1;
 }

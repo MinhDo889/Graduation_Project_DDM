@@ -11,7 +11,7 @@ import Header from "../common/Header";
 import { toast } from "react-toastify";
 import "./ProductDetails.css";
 
-const BASE_URL = "http://localhost:3001/";
+const BASE_URL = "http://localhost:3001";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams();

@@ -26,7 +26,6 @@ export const verifyToken = (req, res, next) => {
     };
 
     // 3️⃣ Log payload để kiểm tra
-    console.log("User from token:", req.user);
 
     next();
   } catch (err) {
